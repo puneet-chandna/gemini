@@ -39,6 +39,7 @@
     background: -webkit-linear-gradient(16deg , #4b90ff, #ff5546);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    
 }
 
 .main .cards{
@@ -55,3 +56,68 @@
     position: relative;
     cursor: pointer;
 }
+.main .card img {
+    width: 35px;
+    padding: 5px;
+    position: absolute;
+    background-color: white;
+    border-radius: 20px;
+    bottom: 10px;
+    right :10px;
+
+}
+.main .card p{
+    color: #585858;
+    font-size: 17px;
+}
+.main .card:hover{
+    background-color: #dfe4ea;
+}
+.main_bottom{
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    max-width: 900px;
+    padding:0px 20px;
+    margin:auto;
+    
+}
+
+.search_box{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    background-color: #f0f4f9;
+    padding: 10px 20px;
+    border-radius: 50px;
+}
+.search_box img{
+    width: 24px;
+    cursor: pointer;
+}
+.search_box input{
+    flex: 1;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    padding: 8px;
+    font-size: 18px;
+
+}
+
+.search_box div{
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.main .bottom_info{
+    font-size: 13px;
+    margin : 15px auto;
+    text-align: center;
+    font-weight: 280 ;
+}
+
