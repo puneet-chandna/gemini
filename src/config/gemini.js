@@ -1,14 +1,19 @@
-
-import ('dotenv').config(); 
+import dotenv from 'dotenv';
+dotenv.config();
 import process from 'process';
+
 
 import {
     GoogleGenerativeAI,
     
   } from "@google/generative-ai";
   
-  const genAI = new GoogleGenerativeAI(process.env.MY_API_KEY);
+  const apiKey = process.env.MY_API_KEY;
+  if (!apiKey) {
+    throw new Error('API key not found in environment variables');
+  }
   
+  const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
   });
@@ -25,12 +30,13 @@ import {
     const chatSession = model.startChat({
       generationConfig,
    
-      history: [
-      ],
+      history: [],
     });
   
     const result = await chatSession.sendMessage(prompt);
+    const response = result.response;
     console.log(result.response.text());
+    return response.text();
   }
   
   export default runChat;
