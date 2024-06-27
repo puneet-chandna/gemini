@@ -1,6 +1,3 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
 
 
 import {
@@ -8,7 +5,7 @@ import {
     
   } from "@google/generative-ai";
   
-  const apiKey = process.env.REACT_APP_MY_API_KEY;
+  const apiKey = `${process.env.REACT_APP_MY_API_KEY}`
   if (!apiKey) {
     throw new Error('API key not found in environment variables');
   }
