@@ -5,11 +5,7 @@ import { Context } from '../../context/context';
 
 
 const Main = () => {
-    const {onSent,setInput,input} = useContext(Context);
-
-
-
-
+    const {onSent,response,setInput,input,} = useContext(Context);
 
 
 
@@ -22,6 +18,9 @@ const Main = () => {
             </div>
 
             <div className="main_container">
+
+                {!response
+                ?<>
                 <div className="greet">
                     <p> <span> Hello, Dev</span></p>
                     <p>How can I help you today?</p>
@@ -50,6 +49,16 @@ const Main = () => {
                     </div>
         
                 </div>
+
+                </>
+                : <div className="result">
+
+                </div>
+             }
+                
+
+
+                
                 <div className="main_bottom">
                     <div className="search_box">
                         <input onChange={(e) => setInput(e.target.value)} value={input} type="text" placeholder="Enter promt here"/>
