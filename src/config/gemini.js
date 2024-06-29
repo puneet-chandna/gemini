@@ -1,7 +1,6 @@
-
-
 import {
     GoogleGenerativeAI,
+    
     
   } from "@google/generative-ai";
   
@@ -24,17 +23,18 @@ import {
   };
   
   async function runChat(prompt) {
+    
     const chatSession = model.startChat({
       generationConfig,
    
       history: [],
     });
   
-    const result = await chatSession.sendMessage(prompt);
-    const response = result.response;
+    const result = await chatSession.sendMessage({text: prompt});
+    const response =  result.response;
     console.log(result.response.text());
     return response.text();
   }
   
-  
+
   export default runChat;

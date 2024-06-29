@@ -7,7 +7,7 @@ export const Context = createContext();
 
 
 const ContextProvider = (props) => {
-    const [input, setInput] = useState('');
+    const [input, setInput] = useState("");
     const [recentPrompt, setRecentPrompt] = useState("");
     const [previousPrompts, setPreviousPrompts] = useState([]);
     const [response, setResponse] = useState(false);
@@ -26,8 +26,10 @@ const ContextProvider = (props) => {
         setLoading(false);
         setInput("");
         
-    }
+    } 
 
+
+        
     
     const contextValue= {
         previousPrompts,
@@ -39,7 +41,7 @@ const ContextProvider = (props) => {
         loading,
         resultData,
         input,
-        setInput,
+        setInput
 
     };
 
