@@ -54,7 +54,7 @@ const ContextProvider = (props) => {
 
 }
 ContextProvider.propTypes = {
-    children: PropTypes.node.isRequired,
+    children: PropTypes.node.isRequired
 };
 
 export default ContextProvider;

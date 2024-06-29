@@ -32,8 +32,13 @@ import {
   
     const result = await chatSession.sendMessage({text: prompt});
     const response =  result.response;
-    console.log(result.response.text());
-    return response.text();
+    if (!response || typeof response.text !== 'function') {
+      throw new TypeError('Response object does not have a text method.');
+      }
+
+    const textResponse = await response.text();
+    console.log(textResponse);  // Log the text response
+    return textResponse;
   }
   
 
