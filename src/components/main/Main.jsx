@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import'./Main.css';
 import { assets } from '../../assets/assets';
-import { Context } from '../../context/context';
+import { Context } from '../../context/Context';
 
 
 const Main = () => {
@@ -45,14 +45,18 @@ const Main = () => {
                     <div className="card">
                         <p>Fix this code and make it more efficient</p>
                         <img src ={assets.code_icon} alt=''/>
-
                     </div>
-        
                 </div>
-
                 </>
-                : <div className="result">
-
+                :<div className="result">
+                    <div className="result_title">
+                        <img src={assets.user_icon} alt=""/>
+                        <p>{recentPrompt}</p>
+                    </div>
+                    <div className="result_body">
+                        <img src={assets.gemini_icon} alt=""/>
+                        <p dangerouslySetInnerHTML={{__html:resultData}}></p>
+                    </div>
                 </div>
              }
                 

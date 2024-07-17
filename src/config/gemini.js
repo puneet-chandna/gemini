@@ -26,16 +26,18 @@ import {
     
     const chatSession = model.startChat({
       generationConfig,
-   
+      
       history: [],
     });
-  
+    
     const result = await chatSession.sendMessage({text: prompt});
     const response =  result.response;
     
-    const textResponse =  response.text();
-    console.log(textResponse);  // Log the text response
-    return textResponse;
+    
+    console.log(response.text());  // Log the text response
+    return response.text();
+
+
   }
   
 
