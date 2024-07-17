@@ -1,11 +1,13 @@
 
-import  { useState } from 'react'
+import { useContext, useState } from 'react';
 import './Sidebar.css'
 import { assets } from "../../assets/assets";
+import { Context } from '../../context/Context';
 
 
 function Sidebar() {
     const[extended, setExtended] = useState(false);
+    const [onSent,previousPrompts,setPreviousPrompts] = useContext(Context);
 
 
 
@@ -19,16 +21,20 @@ function Sidebar() {
                     {extended?<p>New Chat</p>:null}
                 </div>
 
-                {extended? 
-                <div className="recent">
+                {extended
+                ? <div className="recent">
                     <p className="recent_title"> Recent</p>
-                    <div className="recent_entry">
-                        <img src={assets.message_icon} alt="" />
-                        <p> what is react...</p>
-                    </div>
-                </div> : null
-                }
-                
+                    { previousPrompts.map((item,index) => {
+                        return(
+                            <div className="recent_entry"  alt = "" >
+                                <img src={assets.message_icon} alt="" />
+                                <p> {item}...</p>
+                            </div>
+                        )
+                    })}
+                </div> 
+                : null
+            }  
             </div>
 
 
@@ -46,17 +52,9 @@ function Sidebar() {
                     <img src={assets.setting_icon} alt="" />
                     {extended?<p>Settings</p>:null}
                 </div>
-
             </div>
-            
-            
-
-        
-
-
-        </div>
-        
+        </div> 
     );
 }
-    
+
 export default Sidebar
