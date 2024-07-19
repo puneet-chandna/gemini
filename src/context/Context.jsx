@@ -1,3 +1,4 @@
+// src/context/Context.jsx
 import { createContext, useState } from "react";
 import PropTypes from "prop-types";
 import runChat from "../config/gemini";
@@ -26,6 +27,12 @@ const ContextProvider = (props) => {
 
         try {
             const response = await runChat(input);
+
+            // Ensure response is in expected format
+            if (typeof response !== 'string') {
+                throw new Error("Unexpected response format");
+            }
+
             let responseArr = response.split("**");
             let newResponse = "";
             for (let i = 0; i < responseArr.length; i++) {

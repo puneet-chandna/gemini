@@ -34,7 +34,7 @@ import {
     const response =  result.response;
     
     
-    console.log(response.text());  // Log the text response
+    console.log(response.text());  
     return response.text();
 
 
