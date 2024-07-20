@@ -27,7 +27,7 @@ const ContextProvider = (props) => {
 
         try {
             const response = await runChat(input);
-
+            console.log("Chat response: ", response);
             // Ensure response is in expected format
             if (typeof response !== 'string') {
                 throw new Error("Unexpected response format");
