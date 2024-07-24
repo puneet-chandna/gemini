@@ -53,9 +53,16 @@ const Main = () => {
                         <img src={assets.user_icon} alt=""/>
                         <p>{recentPrompt}</p>
                     </div>
-                    <div className="result_body">
+                    <div className="result_data">
                         <img src={assets.gemini_icon} alt=""/>
-                        <p dangerouslySetInnerHTML={{__html:resultData}}></p>
+                        {loading?
+                        <div className="loader">
+                            <hr />
+                            <hr />
+                            <hr />
+                        </div>
+                        :<p dangerouslySetInnerHTML={{__html:resultData}}></p>}
+                        
                     </div>
                 </div>
              }
