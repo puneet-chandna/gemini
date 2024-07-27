@@ -29,8 +29,8 @@ import {
       
       history: [],
     });
-    
-    const result = await chatSession.sendMessage({text: prompt});
+    const msg = `${prompt}`;
+    const result = await chatSession.sendMessage(msg.toString());
     const response =  result.response;
     
     
