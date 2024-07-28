@@ -23,38 +23,38 @@ const ContextProvider = (props) => {
         setResultData("");
         setLoading(true);
         setResponse(true);
-        setRecentPrompt(input);
-
-        try {
-            const response = await runChat(input);
-            console.log("Chat response: ", response);
-        
-            if (typeof response !== 'string') {
-                throw new Error("Unexpected response format");
-            }
-
-            let responseArr = response.split("**");
-            let newResponse = "";
-            for (let i = 0; i < responseArr.length; i++) {
-                if (i === 0 || i % 2 !== 1) {
-                    newResponse += responseArr[i];
-                } else {
-                    newResponse += "<b>" + responseArr[i] + "</b>";
-                }
-            }
-            let newResponse2 = newResponse.split("*").join("</br>");
-            let newResponseArr = newResponse2.split(" ");
-            for (let i = 0; i < newResponseArr.length; i++) {
-                const nextWord = newResponseArr[i];
-                delayPara(i, nextWord + " ");
-            }
-            setPreviousPrompts(prev => [...prev, input]);
-        } catch (error) {
-            console.error("Error fetching chat response: ", error);
-        } finally {
-            setLoading(false);
-            setInput("");
+        let response ;
+        if (prompt !== undefined){
+            response = await runChat(prompt);
+            setRecentPrompt(input);
         }
+        else{
+            setPreviousPrompts(prev => [...prev, input]);
+            setRecentPrompt(input);
+            response = await runChat(input);
+        }
+        
+
+        let responseArr = response.split("**");
+        let newResponse = "";
+        for (let i = 0; i < responseArr.length; i++) {
+            if (i === 0 || i % 2 !== 1) {
+                newResponse += responseArr[i];
+            }
+            else 
+            {
+                newResponse += "<b>" + responseArr[i] + "</b>";
+            }
+        }
+        let newResponse2 = newResponse.split("*").join("</br>");
+        let newResponseArr = newResponse2.split(" ");
+        for (let i = 0; i < newResponseArr.length; i++) {
+            const nextWord = newResponseArr[i];
+            delayPara(i, nextWord + " ");
+        }
+        setPreviousPrompts(prev => [...prev, input]);
+        setLoading(false);
+        setInput("");
     };
 
     const contextValue = {
