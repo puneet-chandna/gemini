@@ -18,7 +18,10 @@ const ContextProvider = (props) => {
             setResultData(prev => prev + nextWord);
         }, 75 * index);
     };
-
+    const newChat = async () => {
+        setLoading(false);
+        setResponse(false);
+    }
     const onSent = async (input) => {
         setResultData("");
         setLoading(true);
@@ -68,6 +71,7 @@ const ContextProvider = (props) => {
         resultData,
         input,
         setInput,
+        newChat,
     };
 
     return (
