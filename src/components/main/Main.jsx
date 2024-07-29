@@ -12,6 +12,12 @@ const Main = () => {
         }
     };
 
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter' && input.trim() !== "") {
+            handleSend();
+        }
+    };
+
     return (
         <div className='main'>
             <div className='nav'>
@@ -69,6 +75,7 @@ const Main = () => {
                     <div className="search_box">
                         <input
                             onChange={(e) => setInput(e.target.value)}
+                            onKeyPress={handleKeyPress}
                             value={input}
                             type="text"
                             placeholder="Enter prompt here"
