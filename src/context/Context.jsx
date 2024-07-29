@@ -18,46 +18,53 @@ const ContextProvider = (props) => {
             setResultData(prev => prev + nextWord);
         }, 75 * index);
     };
-    const newChat = async () => {
+
+    const newChat = () => {
         setLoading(false);
         setResponse(false);
+        setResultData("");
     }
+
     const onSent = async (input) => {
+        if (!input) {
+            console.error("Input cannot be empty or undefined");
+            return;
+        }
+
         setResultData("");
         setLoading(true);
         setResponse(true);
-        let response ;
-        if (prompt !== undefined){
-            response = await runChat(prompt);
-            setRecentPrompt(input);
-        }
-        else{
-            setPreviousPrompts(prev => [...prev, input]);
-            setRecentPrompt(input);
-            response = await runChat(input);
-        }
-        
+        setRecentPrompt(input);
 
-        let responseArr = response.split("**");
-        let newResponse = "";
-        for (let i = 0; i < responseArr.length; i++) {
-            if (i === 0 || i % 2 !== 1) {
-                newResponse += responseArr[i];
+        try {
+            const response = await runChat(input);
+
+            if (typeof response !== 'string') {
+                throw new Error("Unexpected response format");
             }
-            else 
-            {
-                newResponse += "<b>" + responseArr[i] + "</b>";
+
+            let responseArr = response.split("**");
+            let newResponse = "";
+            for (let i = 0; i < responseArr.length; i++) {
+                if (i === 0 || i % 2 !== 1) {
+                    newResponse += responseArr[i];
+                } else {
+                    newResponse += "<b>" + responseArr[i] + "</b>";
+                }
             }
+            let newResponse2 = newResponse.split("*").join("</br>");
+            let newResponseArr = newResponse2.split(" ");
+            for (let i = 0; i < newResponseArr.length; i++) {
+                const nextWord = newResponseArr[i];
+                delayPara(i, nextWord + " ");
+            }
+            setPreviousPrompts(prev => [...prev, input]);
+        } catch (error) {
+            console.error("Error fetching chat response: ", error);
+        } finally {
+            setLoading(false);
+            setInput("");
         }
-        let newResponse2 = newResponse.split("*").join("</br>");
-        let newResponseArr = newResponse2.split(" ");
-        for (let i = 0; i < newResponseArr.length; i++) {
-            const nextWord = newResponseArr[i];
-            delayPara(i, nextWord + " ");
-        }
-        setPreviousPrompts(prev => [...prev, input]);
-        setLoading(false);
-        setInput("");
     };
 
     const contextValue = {
@@ -86,3 +93,4 @@ ContextProvider.propTypes = {
 };
 
 export default ContextProvider;
+

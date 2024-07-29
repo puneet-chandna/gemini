@@ -1,8 +1,4 @@
-import {
-    GoogleGenerativeAI,
-    
-    
-  } from "@google/generative-ai";
+import {GoogleGenerativeAI} from "@google/generative-ai";
   
   const apiKey = `${process.env.REACT_APP_MY_API_KEY}`
   if (!apiKey) {
