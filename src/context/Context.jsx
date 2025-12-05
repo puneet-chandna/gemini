@@ -7,9 +7,8 @@ export const Context = createContext();
 
 const ContextProvider = (props) => {
     const [input, setInput] = useState("");
-    const [recentPrompt, setRecentPrompt] = useState("");
-    const [previousPrompts, setPreviousPrompts] = useState([]);
-    const [response, setResponse] = useState(false);
+    const [chatHistory, setChatHistory] = useState([]);
+    const [chatSessions, setChatSessions] = useState([]);
     const [loading, setLoading] = useState(false);
     const [resultData, setResultData] = useState("");
 
@@ -20,47 +19,65 @@ const ContextProvider = (props) => {
     };
 
     const newChat = () => {
-        setLoading(false);
-        setResponse(false);
-        setResultData("");
-    }
 
-    const onSent = async (input) => {
-        if (!input) {
+        if (chatHistory.length > 0) {
+            const firstUserMessage = chatHistory.find(msg => msg.role === 'user');
+            const newSession = {
+                id: Date.now(),
+                title: firstUserMessage?.content?.slice(0, 50) || "New Chat",
+                messages: [...chatHistory],
+                timestamp: new Date()
+            };
+            setChatSessions(prev => [newSession, ...prev]);
+        }
+
+        setLoading(false);
+        setChatHistory([]);
+        setResultData("");
+    };
+
+    const loadChatSession = (sessionId) => {
+        const session = chatSessions.find(s => s.id === sessionId);
+        if (session) {
+            setChatHistory(session.messages);
+            const lastAssistant = [...session.messages].reverse().find(msg => msg.role === 'assistant');
+            setResultData(lastAssistant?.content || "");
+        }
+    };
+
+    const onSent = async (promptText) => {
+        if (!promptText) {
             console.error("Input cannot be empty or undefined");
             return;
         }
 
+        const userMessage = { role: 'user', content: promptText };
+        setChatHistory(prev => [...prev, userMessage]);
+
         setResultData("");
         setLoading(true);
-        setResponse(true);
-        setRecentPrompt(input);
 
         try {
-            const response = await runChat(input);
+            const response = await runChat(promptText);
 
             if (typeof response !== 'string') {
                 throw new Error("Unexpected response format");
             }
 
-            let responseArr = response.split("**");
-            let newResponse = "";
-            for (let i = 0; i < responseArr.length; i++) {
-                if (i === 0 || i % 2 !== 1) {
-                    newResponse += responseArr[i];
-                } else {
-                    newResponse += "<b>" + responseArr[i] + "</b>";
-                }
-            }
-            let newResponse2 = newResponse.split("*").join("</br>");
-            let newResponseArr = newResponse2.split(" ");
+            let newResponseArr = response.split(" ");
             for (let i = 0; i < newResponseArr.length; i++) {
                 const nextWord = newResponseArr[i];
                 delayPara(i, nextWord + " ");
             }
-            setPreviousPrompts(prev => [...prev, input]);
+
+            setTimeout(() => {
+                const assistantMessage = { role: 'assistant', content: response };
+                setChatHistory(prev => [...prev, assistantMessage]);
+            }, newResponseArr.length * 75);
+
         } catch (error) {
             console.error("Error fetching chat response: ", error);
+            setResultData("Error: Could not fetch response");
         } finally {
             setLoading(false);
             setInput("");
@@ -68,17 +85,15 @@ const ContextProvider = (props) => {
     };
 
     const contextValue = {
-        previousPrompts,
-        setPreviousPrompts,
+        chatHistory,
+        chatSessions,
         onSent,
-        setRecentPrompt,
-        recentPrompt,
-        response,
         loading,
         resultData,
         input,
         setInput,
         newChat,
+        loadChatSession,
     };
 
     return (

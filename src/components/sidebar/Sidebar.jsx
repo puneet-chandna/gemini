@@ -5,13 +5,10 @@ import { Context } from '../../context/Context';
 
 function Sidebar() {
     const [extended, setExtended] = useState(false);
-    const { previousPrompts, onSent, setRecentPrompt, newChat } = useContext(Context);
+    const { chatSessions, newChat, loadChatSession } = useContext(Context);
 
-    const loadPrompt = async (prompt) => {
-        console.log("Prompt received:", prompt);
-        setRecentPrompt(prompt);
-        const response = await onSent(prompt);
-        console.log("Response from onSent:", response);
+    const handleLoadChat = (sessionId) => {
+        loadChatSession(sessionId);
     };
 
     return (
@@ -26,10 +23,10 @@ function Sidebar() {
                 {extended ? (
                     <div className="recent">
                         <p className="recent_title">Recent</p>
-                        {previousPrompts.map((item, index) => (
-                            <div onClick={() => loadPrompt(item)} key={index} className="recent_entry">
+                        {chatSessions.map((session) => (
+                            <div onClick={() => handleLoadChat(session.id)} key={session.id} className="recent_entry">
                                 <img src={assets.message_icon} alt="" />
-                                <p>{item.slice(0, 18)}...</p>
+                                <p>{session.title.slice(0, 18)}...</p>
                             </div>
                         ))}
                     </div>
@@ -55,4 +52,3 @@ function Sidebar() {
 }
 
 export default Sidebar;
-

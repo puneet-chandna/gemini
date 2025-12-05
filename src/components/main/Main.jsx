@@ -1,10 +1,18 @@
-import { useContext } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import './Main.css';
 import { assets } from '../../assets/assets';
 import { Context } from '../../context/Context';
+import Markdown from 'react-markdown';
+import rehypeHighlight from 'rehype-highlight';
+import 'highlight.js/styles/github-dark.css';
 
 const Main = () => {
-    const { onSent, recentPrompt, response, loading, resultData, setInput, input } = useContext(Context);
+    const { onSent, chatHistory, loading, resultData, setInput, input } = useContext(Context);
+    const messagesEndRef = useRef(null);
+
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [chatHistory, resultData]);
 
     const handleSend = () => {
         if (input.trim() !== "") {
@@ -26,51 +34,74 @@ const Main = () => {
             </div>
 
             <div className="main_container">
-                {!response ? (
+                {chatHistory.length === 0 && !loading ? (
                     <>
                         <div className="greet">
                             <p><span>Hello, Dev</span></p>
                             <p>How can I help you today?</p>
                         </div>
                         <div className="cards">
-                            <div className="card">
+                            <div className="card" onClick={() => setInput("Suggest a place in India for a road trip")}>
                                 <p>Suggest a place in India for a road trip</p>
                                 <img src={assets.compass_icon} alt='' />
                             </div>
-                            <div className="card">
+                            <div className="card" onClick={() => setInput("Briefly summarize the concept of blockchain indexing")}>
                                 <p>Briefly summarize the concept of blockchain indexing</p>
                                 <img src={assets.bulb_icon} alt='' />
                             </div>
-                            <div className="card">
+                            <div className="card" onClick={() => setInput("Give me some ideas for doing an online event for my college club")}>
                                 <p>Give me some ideas for doing an online event for my college club</p>
                                 <img src={assets.message_icon} alt='' />
                             </div>
-                            <div className="card">
+                            <div className="card" onClick={() => setInput("Fix this code and make it more efficient")}>
                                 <p>Fix this code and make it more efficient</p>
                                 <img src={assets.code_icon} alt='' />
                             </div>
                         </div>
                     </>
                 ) : (
-                    <div className="result">
-                        <div className="result_title">
-                            <img src={assets.user_icon} alt="" />
-                            <p>{recentPrompt}</p>
-                        </div>
-                        <div className="result_data">
-                            <img src={assets.gemini_icon} alt="" />
-                            {loading ? (
-                                <div className="loader">
-                                    <hr />
-                                    <hr />
-                                    <hr />
+                    <div className="chat_container">
+                        {chatHistory.map((message, index) => (
+                            <div key={index} className={`message ${message.role}`}>
+                                {message.role === 'user' ? (
+                                    <div className="message_content">
+                                        <img src={assets.user_icon} alt="user" className="message_icon" />
+                                        <p>{message.content}</p>
+                                    </div>
+                                ) : (
+                                    <div className="message_content">
+                                        <img src={assets.gemini_icon} alt="gemini" className="message_icon" />
+                                        <div className="assistant_message">
+                                            <Markdown rehypePlugins={[rehypeHighlight]}>{message.content}</Markdown>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+
+                        {loading && (
+                            <div className="message assistant">
+                                <div className="message_content">
+                                    <img src={assets.gemini_icon} alt="gemini" className="message_icon" />
+                                    {resultData ? (
+                                        <div className="assistant_message">
+                                            <Markdown rehypePlugins={[rehypeHighlight]}>{resultData}</Markdown>
+                                        </div>
+                                    ) : (
+                                        <div className="loader">
+                                            <hr />
+                                            <hr />
+                                            <hr />
+                                        </div>
+                                    )}
                                 </div>
-                            ) : (
-                                <p dangerouslySetInnerHTML={{ __html: resultData }}></p>
-                            )}
-                        </div>
+                            </div>
+                        )}
+
+                        <div ref={messagesEndRef} />
                     </div>
                 )}
+
                 <div className="main_bottom">
                     <div className="search_box">
                         <input
@@ -83,7 +114,7 @@ const Main = () => {
                         <div>
                             <img src={assets.gallery_icon} alt="" />
                             <img src={assets.mic_icon} alt="" />
-                            {input? <img onClick={handleSend} src={assets.send_icon} alt="" /> : null}
+                            {input ? <img onClick={handleSend} src={assets.send_icon} alt="" /> : null}
                         </div>
                     </div>
                     <p className="bottom_info">
@@ -96,4 +127,3 @@ const Main = () => {
 };
 
 export default Main;
-
