@@ -116,7 +116,7 @@ MIT © 2024
 ---
 
 <p align="center">
-  <b>Built with 💙 and Google Gemini</b>
+  <b>Built with 💙 and Google Gemini API </b>
 </p>
 
 <p align="center">
