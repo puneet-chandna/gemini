@@ -9,19 +9,27 @@ const json = (value, status, headers = {}) => Response.json(value, {
 
 async function generateText(prompt) {
   if (!process.env.GEMINI_API_KEY) throw new Error('Missing server configuration');
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-  const response = await ai.models.generateContent({
-    model: 'gemini-2.5-flash',
-    contents: prompt,
-    config: {
-      temperature: 1,
-      topP: 0.95,
-      topK: 64,
-      maxOutputTokens: 8192,
-      responseMimeType: 'text/plain',
-    },
-  });
-  return response.text;
+  let stage = 'construct';
+  try {
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    stage = 'generateContent';
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+      config: {
+        temperature: 1,
+        topP: 0.95,
+        topK: 64,
+        maxOutputTokens: 8192,
+        responseMimeType: 'text/plain',
+      },
+    });
+    stage = 'responseText';
+    return response.text;
+  } catch (error) {
+    if (error && typeof error === 'object') error.chatStage = stage;
+    throw error;
+  }
 }
 
 export async function handleChat(request, generate = generateText) {
@@ -59,6 +67,7 @@ export async function handleChat(request, generate = generateText) {
       status: Number.isInteger(error?.status) ? error.status : null,
       name: ['Error', 'TypeError', 'ApiError'].includes(error?.name) ? error.name : 'other',
       cause: ['ENOTFOUND', 'EAI_AGAIN', 'ETIMEDOUT', 'ECONNRESET', 'ECONNREFUSED'].includes(error?.cause?.code) ? error.cause.code : null,
+      stage: ['construct', 'generateContent', 'responseText'].includes(error?.chatStage) ? error.chatStage : null,
     };
     console.error('Gemini chat failure', diagnostic);
     return json({ error: 'Chat unavailable', diagnostic }, 502);

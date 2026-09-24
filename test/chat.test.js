@@ -61,8 +61,8 @@ test('provider failures and empty output reveal no upstream detail', async () =>
       const body = await response.json();
       assert.equal(JSON.stringify(body).includes('private provider detail'), false);
       assert.deepEqual(body.diagnostic, index === 0
-        ? { source: 'provider', status: 403, name: 'Error', cause: null }
-        : { source: 'empty_response', status: null, name: 'Error', cause: null });
+        ? { source: 'provider', status: 403, name: 'Error', cause: null, stage: null }
+        : { source: 'empty_response', status: null, name: 'Error', cause: null, stage: null });
     }
   } finally {
     console.error = originalError;
