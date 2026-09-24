@@ -57,6 +57,8 @@ export async function handleChat(request, generate = generateText) {
     const diagnostic = {
       source: !process.env.GEMINI_API_KEY ? 'configuration' : error?.message === 'Empty response' ? 'empty_response' : 'provider',
       status: Number.isInteger(error?.status) ? error.status : null,
+      name: ['Error', 'TypeError', 'ApiError'].includes(error?.name) ? error.name : 'other',
+      cause: ['ENOTFOUND', 'EAI_AGAIN', 'ETIMEDOUT', 'ECONNRESET', 'ECONNREFUSED'].includes(error?.cause?.code) ? error.cause.code : null,
     };
     console.error('Gemini chat failure', diagnostic);
     return json({ error: 'Chat unavailable', diagnostic }, 502);
