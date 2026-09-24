@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { handleChat } from '../api/chat.js';
+import handler, { handleChat } from '../api/chat.js';
 
 const url = 'http://localhost/api/chat';
 const post = (body, contentType = 'application/json') => new Request(url, {
@@ -19,6 +19,22 @@ test('valid JSON and charset preserve the text contract', async () => {
   assert.deepEqual(await response.json(), { text: 'hello' });
   assert.deepEqual(prompts, ['hi']);
   assert.equal(response.headers.get('cache-control'), 'no-store');
+});
+
+test('Vercel fetch context does not override the Gemini generator', async () => {
+  const originalKey = process.env.GEMINI_API_KEY;
+  const originalFetch = globalThis.fetch;
+  process.env.GEMINI_API_KEY = 'test-only-placeholder';
+  globalThis.fetch = async () => Response.json({ candidates: [{ content: { parts: [{ text: 'hello' }] } }] });
+  try {
+    const response = await handler.fetch(post({ prompt: 'hi' }), { waitUntil() {} });
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), { text: 'hello' });
+  } finally {
+    globalThis.fetch = originalFetch;
+    if (originalKey === undefined) delete process.env.GEMINI_API_KEY;
+    else process.env.GEMINI_API_KEY = originalKey;
+  }
 });
 
 test('method, content type, and malformed JSON are rejected before Google', async () => {
@@ -50,24 +66,15 @@ test('an oversized streamed body receives 413 without Google', async () => {
 test('provider failures and empty output reveal no upstream detail', async () => {
   const logs = [];
   const originalError = console.error;
-  const originalKey = process.env.GEMINI_API_KEY;
-  process.env.GEMINI_API_KEY = 'test-only-placeholder';
   console.error = (...args) => logs.push(args);
   try {
-    const generators = [async () => { throw Object.assign(new Error('private provider detail'), { status: 403 }); }, async () => ''];
-    for (const [index, generate] of generators.entries()) {
+    for (const generate of [async () => { throw Object.assign(new Error('private provider detail'), { status: 403 }); }, async () => '']) {
       const response = await handleChat(post({ prompt: 'hi' }), generate);
       assert.equal(response.status, 502);
-      const body = await response.json();
-      assert.equal(JSON.stringify(body).includes('private provider detail'), false);
-      assert.deepEqual(body.diagnostic, index === 0
-        ? { source: 'provider', status: 403, name: 'Error', cause: null, stage: null }
-        : { source: 'empty_response', status: null, name: 'Error', cause: null, stage: null });
+      assert.equal(JSON.stringify(await response.json()).includes('private provider detail'), false);
     }
   } finally {
     console.error = originalError;
-    if (originalKey === undefined) delete process.env.GEMINI_API_KEY;
-    else process.env.GEMINI_API_KEY = originalKey;
   }
   assert.equal(logs.length, 2);
   assert.equal(logs[0][1].status, 403);

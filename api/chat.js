@@ -9,27 +9,19 @@ const json = (value, status, headers = {}) => Response.json(value, {
 
 async function generateText(prompt) {
   if (!process.env.GEMINI_API_KEY) throw new Error('Missing server configuration');
-  let stage = 'construct';
-  try {
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-    stage = 'generateContent';
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
-      config: {
-        temperature: 1,
-        topP: 0.95,
-        topK: 64,
-        maxOutputTokens: 8192,
-        responseMimeType: 'text/plain',
-      },
-    });
-    stage = 'responseText';
-    return response.text;
-  } catch (error) {
-    if (error && typeof error === 'object') error.chatStage = stage;
-    throw error;
-  }
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash',
+    contents: prompt,
+    config: {
+      temperature: 1,
+      topP: 0.95,
+      topK: 64,
+      maxOutputTokens: 8192,
+      responseMimeType: 'text/plain',
+    },
+  });
+  return response.text;
 }
 
 export async function handleChat(request, generate = generateText) {
@@ -62,16 +54,12 @@ export async function handleChat(request, generate = generateText) {
     if (typeof text !== 'string' || !text.trim()) throw new Error('Empty response');
     return json({ text }, 200);
   } catch (error) {
-    const diagnostic = {
+    console.error('Gemini chat failure', {
       source: !process.env.GEMINI_API_KEY ? 'configuration' : error?.message === 'Empty response' ? 'empty_response' : 'provider',
       status: Number.isInteger(error?.status) ? error.status : null,
-      name: ['Error', 'TypeError', 'ApiError'].includes(error?.name) ? error.name : 'other',
-      cause: ['ENOTFOUND', 'EAI_AGAIN', 'ETIMEDOUT', 'ECONNRESET', 'ECONNREFUSED'].includes(error?.cause?.code) ? error.cause.code : null,
-      stage: ['construct', 'generateContent', 'responseText'].includes(error?.chatStage) ? error.chatStage : null,
-    };
-    console.error('Gemini chat failure', diagnostic);
-    return json({ error: 'Chat unavailable', diagnostic }, 502);
+    });
+    return json({ error: 'Chat unavailable' }, 502);
   }
 }
 
-export default { fetch: handleChat };
+export default { fetch(request) { return handleChat(request); } };
