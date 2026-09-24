@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef } from 'react';
 import './Main.css';
 import { assets } from '../../assets/assets';
-import { Context } from '../../context/Context';
+import { Context } from '../../context/context';
 import Markdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import 'highlight.js/styles/github-dark.css';
