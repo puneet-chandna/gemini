@@ -11,8 +11,8 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/React-18.3.1-61DAFB?style=for-the-badge&logo=react&logoColor=white" alt="React"/>
-  <img src="https://img.shields.io/badge/Vite-5.3.1-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite"/>
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=white" alt="React"/>
+  <img src="https://img.shields.io/badge/Vite-8-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite"/>
   <img src="https://img.shields.io/badge/Gemini_AI-2.5_Flash-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Gemini AI"/>
 </p>
 
@@ -23,38 +23,36 @@
 | Feature | Description |
 |---------|-------------|
 | 💬 **Chat History** | Full conversation history with scrollable messages |
-| 📚 **Session Management** | Save and load previous chat sessions |
+| 📚 **Session Management** | Switch between sessions in the current browser tab |
 | 🎨 **Dark Mode** | Sleek dark theme matching Gemini's aesthetic |
 | ✨ **Markdown Support** | Rich text rendering with syntax highlighting |
-| ⚡ **Real-time Streaming** | Animated word-by-word response display |
+| ⚡ **Response Animation** | Displays the completed response word by word |
 | 📱 **Responsive Design** | Works beautifully on all devices |
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Run locally
 
-### Prerequisites
-- Node.js 18+
-- A free [Gemini API Key](https://aistudio.google.com/apikey)
-
-### Installation
+Requires Node.js 24 and a [Gemini API key](https://aistudio.google.com/apikey). The browser calls a Vercel function at `/api/chat`; the plain Vite server (`npm run dev`) renders the UI but cannot answer chat requests.
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/gemini-app.git
-cd gemini-app
-
-# Install dependencies
-npm install
-
-# Create environment file
-echo "REACT_APP_MY_API_KEY=your_api_key_here" > .env
-
-# Start development server
-npm run dev
+git clone https://github.com/puneet-chandna/gemini.git
+cd gemini
+npm ci
+npx vercel link
+npx vercel dev
 ```
 
-> 💡 **Tip:** Get your free API key from [Google AI Studio](https://aistudio.google.com/apikey)
+Link the existing `gemini` Vercel project and set `GEMINI_API_KEY` in its Development environment before running `vercel dev`. Keep the key in Vercel environment variables; never prefix it with `VITE_` or `REACT_APP_`.
+
+## Public deployment checklist
+
+1. Set Node.js 24 and `GEMINI_API_KEY` for each Vercel environment that runs `/api/chat`.
+2. Add a Firewall rule matching path `/api/chat` and method `POST`: five requests per client IP per 60 seconds, returning HTTP 429 above the limit. Vercel applies rate limits per region; people sharing an IP also share the limit.
+3. Set a Gemini project quota or spend cap. Rotate any key that was previously included in a browser build.
+4. After deployment, send one normal chat request and confirm the response. Send more than five requests from one IP within 60 seconds; confirm that excess requests receive HTTP 429 without invoking the function.
+
+Chat sessions live in browser memory. The UI animates words after the full server response arrives; it does not stream tokens from Google.
 
 ---
 
@@ -73,15 +71,15 @@ npm run dev
 ## 📁 Project Structure
 
 ```
-gemini-app/
+gemini/
+├── api/chat.js           # Server-side Vercel function
 ├── src/
 │   ├── components/
 │   │   ├── main/          # Main chat interface
 │   │   └── sidebar/       # Navigation sidebar
 │   ├── context/           # React Context for state
-│   ├── config/            # Gemini API configuration
+│   ├── config/            # Browser API client
 │   └── assets/            # Icons and images
-├── .env                   # Your API key (create this!)
 └── package.json
 ```
 
