@@ -48,9 +48,19 @@ test('an oversized streamed body receives 413 without Google', async () => {
 });
 
 test('provider failures and empty output reveal no upstream detail', async () => {
-  for (const generate of [async () => { throw new Error('private provider detail'); }, async () => '']) {
-    const response = await handleChat(post({ prompt: 'hi' }), generate);
-    assert.equal(response.status, 502);
-    assert.equal(JSON.stringify(await response.json()).includes('private provider detail'), false);
+  const logs = [];
+  const originalError = console.error;
+  console.error = (...args) => logs.push(args);
+  try {
+    for (const generate of [async () => { throw Object.assign(new Error('private provider detail'), { status: 403 }); }, async () => '']) {
+      const response = await handleChat(post({ prompt: 'hi' }), generate);
+      assert.equal(response.status, 502);
+      assert.equal(JSON.stringify(await response.json()).includes('private provider detail'), false);
+    }
+  } finally {
+    console.error = originalError;
   }
+  assert.equal(logs.length, 2);
+  assert.equal(logs[0][1].status, 403);
+  assert.equal(JSON.stringify(logs).includes('private provider detail'), false);
 });
