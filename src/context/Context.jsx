@@ -76,9 +76,12 @@ const ContextProvider = (props) => {
 
         } catch (error) {
             console.error("Error fetching chat response: ", error);
-            setResultData(error?.message === RATE_LIMIT_MESSAGE
-                ? RATE_LIMIT_MESSAGE
-                : "Error: Could not fetch response");
+            setChatHistory(prev => [...prev, {
+                role: 'error',
+                content: error?.message === RATE_LIMIT_MESSAGE
+                    ? RATE_LIMIT_MESSAGE
+                    : "Error: Could not fetch response",
+            }]);
         } finally {
             setLoading(false);
             setInput("");

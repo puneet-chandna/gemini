@@ -68,6 +68,10 @@ const Main = () => {
                                         <img src={assets.user_icon} alt="user" className="message_icon" />
                                         <p>{message.content}</p>
                                     </div>
+                                ) : message.role === 'error' ? (
+                                    <div className="message_content" role="alert">
+                                        <p>{message.content}</p>
+                                    </div>
                                 ) : (
                                     <div className="message_content">
                                         <img src={assets.gemini_icon} alt="gemini" className="message_icon" />
