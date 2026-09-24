@@ -1,7 +1,7 @@
 // src/context/Context.jsx
 import { useState } from "react";
 import PropTypes from "prop-types";
-import runChat from "../config/gemini";
+import runChat, { RATE_LIMIT_MESSAGE } from "../config/gemini";
 import { Context } from './context';
 
 const ContextProvider = (props) => {
@@ -76,7 +76,9 @@ const ContextProvider = (props) => {
 
         } catch (error) {
             console.error("Error fetching chat response: ", error);
-            setResultData("Error: Could not fetch response");
+            setResultData(error?.message === RATE_LIMIT_MESSAGE
+                ? RATE_LIMIT_MESSAGE
+                : "Error: Could not fetch response");
         } finally {
             setLoading(false);
             setInput("");
