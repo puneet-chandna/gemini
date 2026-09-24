@@ -50,15 +50,22 @@ test('an oversized streamed body receives 413 without Google', async () => {
 test('provider failures and empty output reveal no upstream detail', async () => {
   const logs = [];
   const originalError = console.error;
+  const originalKey = process.env.GEMINI_API_KEY;
+  process.env.GEMINI_API_KEY = 'test-only-placeholder';
   console.error = (...args) => logs.push(args);
   try {
-    for (const generate of [async () => { throw Object.assign(new Error('private provider detail'), { status: 403 }); }, async () => '']) {
+    const generators = [async () => { throw Object.assign(new Error('private provider detail'), { status: 403 }); }, async () => ''];
+    for (const [index, generate] of generators.entries()) {
       const response = await handleChat(post({ prompt: 'hi' }), generate);
       assert.equal(response.status, 502);
-      assert.equal(JSON.stringify(await response.json()).includes('private provider detail'), false);
+      const body = await response.json();
+      assert.equal(JSON.stringify(body).includes('private provider detail'), false);
+      assert.deepEqual(body.diagnostic, index === 0 ? { source: 'provider', status: 403 } : { source: 'empty_response', status: null });
     }
   } finally {
     console.error = originalError;
+    if (originalKey === undefined) delete process.env.GEMINI_API_KEY;
+    else process.env.GEMINI_API_KEY = originalKey;
   }
   assert.equal(logs.length, 2);
   assert.equal(logs[0][1].status, 403);

@@ -54,11 +54,12 @@ export async function handleChat(request, generate = generateText) {
     if (typeof text !== 'string' || !text.trim()) throw new Error('Empty response');
     return json({ text }, 200);
   } catch (error) {
-    console.error('Gemini chat failure', {
+    const diagnostic = {
       source: !process.env.GEMINI_API_KEY ? 'configuration' : error?.message === 'Empty response' ? 'empty_response' : 'provider',
       status: Number.isInteger(error?.status) ? error.status : null,
-    });
-    return json({ error: 'Chat unavailable' }, 502);
+    };
+    console.error('Gemini chat failure', diagnostic);
+    return json({ error: 'Chat unavailable', diagnostic }, 502);
   }
 }
 
